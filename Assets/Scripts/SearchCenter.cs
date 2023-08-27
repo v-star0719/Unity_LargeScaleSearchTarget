@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public enum SearchType
 {
@@ -40,6 +36,7 @@ public class SearchCenter : MonoBehaviour
         var ticks = System.DateTime.Now.Ticks;
         if (searchType == SearchType.KDTreeRange || searchType == SearchType.KDTreeNearest)
         {
+            kdTree.Clear();
             kdTree.Build(MonsterManager.Instance.Monsters);
         }
 
@@ -53,11 +50,6 @@ public class SearchCenter : MonoBehaviour
         }
 
         costTime = (System.DateTime.Now.Ticks - ticks) / 10;
-
-        if (searchType == SearchType.KDTreeRange || searchType == SearchType.KDTreeNearest)
-        {
-            kdTree.Clear();
-        }
     }
 
     private void SearchMultiTimes(Hero hero)
@@ -120,14 +112,14 @@ public class SearchCenter : MonoBehaviour
     private Monster SearchGrid(Hero hero)
     {
         var heroPos = hero.transform.position;
-        var gridPos = Grid.Instance.WorldPosToGridPos(heroPos);
-        var attackRangeGridCount = Mathf.CeilToInt(hero.AttackRange / Grid.Instance.cellSize);
+        var gridPos = GridX.Instance.WorldPosToGridPos(heroPos);
+        var attackRangeGridCount = Mathf.CeilToInt(hero.AttackRange / GridX.Instance.cellSize);
         var ar = hero.AttackRange * hero.AttackRange;
         var arSqrInt = attackRangeGridCount * attackRangeGridCount;
         Monster target = null;
         float dist = Single.MaxValue;
         int x, y, z;
-        var cells = Grid.Instance.cells;
+        var cells = GridX.Instance.cells;
 
         SearchGridHelper(gridPos.x, gridPos.y, gridPos.z, heroPos, ar, ref dist, ref target);
         
@@ -174,7 +166,7 @@ public class SearchCenter : MonoBehaviour
 
     private void SearchGridHelper(int x, int y, int z, Vector3 heroPos, float attackRangeSqr, ref float minDict, ref Monster target)
     {
-        var cell = Grid.Instance.GetCell(x, y, z);
+        var cell = GridX.Instance.GetCell(x, y, z);
         if (cell == null)
         {
             return;
@@ -202,6 +194,17 @@ public class SearchCenter : MonoBehaviour
         if (searchType > SearchType.Grid)
         {
             searchType = SearchType.Normal;
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        if (searchType == SearchType.KDTreeNearest || searchType == SearchType.KDTreeRange)
+        {
+            if (kdTree != null)
+            {
+                kdTree.DrawGizmos();
+            }
         }
     }
 

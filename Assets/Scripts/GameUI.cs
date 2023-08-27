@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameUI : MonoBehaviour
 {
@@ -27,7 +24,7 @@ public class GameUI : MonoBehaviour
         heroCountInput.text = HeroManager.Instance.count.ToString();
         attackRangeInput.text = HeroManager.Instance.attackRange.ToString("f2");
         searchTimesInput.text = SearchCenter.Instance.searchTimes.ToString();
-        cellSizeInput.text = Grid.Instance.cellSize.ToString();
+        cellSizeInput.text = GridX.Instance.cellSize.ToString();
         searchTypeText.text = SearchCenter.Instance.searchType.ToString();
         cosText.text = "0us";
         fpsText.text = "0";
@@ -85,7 +82,7 @@ public class GameUI : MonoBehaviour
     {
         var n = 0;
         int.TryParse(cellSizeInput.text, out n);
-        Grid.Instance.cellSize = n;
+        GridX.Instance.cellSize = n;
     }
 
     public void OnSearchTypeClick()
@@ -94,6 +91,6 @@ public class GameUI : MonoBehaviour
         searchTypeText.text = SearchCenter.Instance.searchType.ToString();
         var show = SearchCenter.Instance.searchType == SearchType.Grid;
         cellSizeInput.transform.parent.gameObject.SetActive(show);
-        Grid.Instance.gameObject.SetActive(show);
+        GridX.Instance.gameObject.SetActive(show);
     }
 }

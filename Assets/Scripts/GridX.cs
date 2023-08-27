@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 //场景立方体盒子上，x，y，z都是负的那个角作为0号格子。这样其他格子减去他的坐标都是正的。
-public class Grid : MonoBehaviour
+public class GridX : MonoBehaviour
 {
-    public static Grid Instance;
+    public static GridX Instance;
     public GridCell[,,] cells;
     public int cellSize;//格子大小 
     public GameObject markPrefab;
@@ -171,6 +167,11 @@ public class Grid : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        if (SearchCenter.Instance == null || SearchCenter.Instance.searchType != SearchType.Grid)
+        {
+            return;
+        }
+
         var cellCube = new Vector3(cellSize, cellSize, cellSize);
         foreach (var cell in cells)
         {
@@ -231,7 +232,7 @@ public class MonsterCellData
     public void CheckCellChange()
     {
         var pos = monster.transform.position;
-        var newCell = Grid.Instance.GetCell(pos);
+        var newCell = GridX.Instance.GetCell(pos);
         if (cell != newCell)
         {
             if (cell != null)

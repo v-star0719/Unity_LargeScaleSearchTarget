@@ -2549,6 +2549,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   areaSize: {x: 50, y: 10, z: 50}
+  activeAreaXMax: 0
+  activeAreaXMin: 0
+  activeAreaYMax: 0
+  activeAreaYMin: 0
+  activeAreaZMax: 0
+  activeAreaZMin: 0
 --- !u!4 &630632910
 Transform:
   m_ObjectHideFlags: 0

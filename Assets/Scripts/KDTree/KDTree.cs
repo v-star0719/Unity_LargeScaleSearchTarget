@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 using Kernel.Core;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class KDTreeNode
@@ -327,7 +323,57 @@ public class KDTree
         node.value = null;
         nodePool.Recycle(node);
     }
-    
+
+    public void DrawGizmos()
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        //实际上应该是3D分割平面，这里只画xz平面的情况的分割线，3d的麻烦。
+        var pos = root.value.transform.position;
+        var start = pos;
+        Gizmos.DrawWireSphere(start, 2f);
+        var end = start;
+        start.z = Stage.Instance.activeAreaZMin;
+        end.z = Stage.Instance.activeAreaZMax;
+        Gizmos.DrawLine(start, end);
+        DrawGizmosInner(root.left, 1, true, pos);
+        DrawGizmosInner(root.right, 1, false, pos);
+    }
+
+    public void DrawGizmosInner(KDTreeNode node, int depth, bool isLeft, Vector3 parentPos)
+    {
+        if (node == null)
+        {
+            return;
+        }
+
+        var pos = node.value.transform.position;
+        Vector3 lineEnd = pos;
+        Vector3 lineStart = lineEnd;
+        switch (depth)
+        {
+            case 0:
+                lineStart.z = parentPos.z;
+                lineEnd.z = isLeft ? Stage.Instance.activeAreaZMin : Stage.Instance.activeAreaZMax;
+                break;
+            case 1:
+                //lineStart.x = parentPos.x;
+                //lineEnd.x = isLeft ? Stage.Instance.activeAreaXMin : Stage.Instance.activeAreaXMax;
+                break;
+            case 2:
+                lineStart.x = parentPos.x;
+                lineEnd.x = isLeft ? Stage.Instance.activeAreaXMin : Stage.Instance.activeAreaXMax;
+                break;
+        }
+        Gizmos.DrawLine(lineStart, lineEnd);
+        depth = depth < 2 ? depth + 1 : 0;
+        DrawGizmosInner(node.left, depth, true, pos);
+        DrawGizmosInner(node.right, depth, false, pos);
+    }
+
     public static void Swap(Monster[] array, int i, int j)
     {
         var n = array[i];

@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using Random = UnityEngine.Random;
 public class Stage : MonoBehaviour
 {
     public static Stage Instance { get; private set; }
     public Vector3 areaSize;//立方体空间的大小
 
-    private float activeAreaXMax;
-    private float activeAreaXMin;
-    private float activeAreaYMax;
-    private float activeAreaYMin;
-    private float activeAreaZMax;
-    private float activeAreaZMin;
+    public float activeAreaXMax;
+    public float activeAreaXMin;
+    public float activeAreaYMax;
+    public float activeAreaYMin;
+    public float activeAreaZMax;
+    public float activeAreaZMin;
 
     void Awake()
     {
