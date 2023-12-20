@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using Assets.Temp;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class Monster : MonoBehaviour
+public class Monster : MonoBehaviour, IOrthtreeObj
 {
     public float moveCubeAreaSize;
     public float speed = 1f;
@@ -15,6 +16,10 @@ public class Monster : MonoBehaviour
     public float dyTime;
     public float[] kd = new float[3];
     public MonsterCellData CellData { get; private set; }
+
+    public float[] Pos { get; } = new float[3];
+    public float[] Size { get; } = new float[3];
+    public float PickValue { get; set; }
 
     public void StartRunning()
     {
@@ -55,6 +60,7 @@ public class Monster : MonoBehaviour
             transform.position = Vector3.Lerp(startPos, targetPos, timer / totalTime);
         }
         CellData.CheckCellChange();
+        OrthtreeUtils.Vector3ToArray(transform.position, Pos);
     }
 
     private void MoveToPos()

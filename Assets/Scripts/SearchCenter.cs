@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Assets.Temp;
 using UnityEngine;
 
 public enum SearchType
@@ -8,6 +10,7 @@ public enum SearchType
     KDTreeRange,
     KDTreeNearest,
     Grid,
+    Octree,
 }
 
 public class SearchCenter : MonoBehaviour
@@ -15,15 +18,21 @@ public class SearchCenter : MonoBehaviour
     public static SearchCenter Instance { get; private set; }
 
     public int searchTimes;
-    public long costTime;
+    public long searchCostTime;
+    public long buildCostTime;
     public SearchType searchType;
+    public bool searchCostTimeChanged;
+
     private Queue<Hero> requests = new Queue<Hero>();
     private KDTree kdTree;
+    private Orthtree orthtree;
+    private List<IOrthtreeObj> orthtreeObjs = new List<IOrthtreeObj>();
 
     public void Awake()
     {
         Instance = this;
         kdTree = new KDTree();
+        orthtree = new Octree(10, new float[] { 1, 1, 1 });
     }
 
     public void Update()
@@ -39,6 +48,17 @@ public class SearchCenter : MonoBehaviour
             kdTree.Clear();
             kdTree.Build(MonsterManager.Instance.Monsters);
         }
+        if (searchType == SearchType.Octree)
+        {
+            orthtree.Clear();
+            orthtreeObjs.Clear();
+            foreach (var monster in MonsterManager.Instance.Monsters)
+            {
+                orthtreeObjs.Add(monster);
+            }
+            orthtree.Build(transform.position, Stage.Instance.areaSize, orthtreeObjs);
+        }
+        buildCostTime = (DateTime.Now.Ticks - ticks) / 10;
 
         while (requests.Count > 0)
         {
@@ -49,7 +69,8 @@ public class SearchCenter : MonoBehaviour
             }
         }
 
-        costTime = (System.DateTime.Now.Ticks - ticks) / 10;
+        searchCostTime = (System.DateTime.Now.Ticks - ticks) / 10;
+        searchCostTimeChanged = true;
     }
 
     private void SearchMultiTimes(Hero hero)
@@ -69,6 +90,9 @@ public class SearchCenter : MonoBehaviour
                     break;
                 case SearchType.Grid:
                     hero.SetTarget(SearchGrid(hero));
+                    break;
+                case SearchType.Octree:
+                    hero.SetTarget(SearchOctree(hero));
                     break;
             }
         }
@@ -188,10 +212,15 @@ public class SearchCenter : MonoBehaviour
         }
     }
 
+    private Monster SearchOctree(Hero hero)
+    {
+        return orthtree.SearchNearest(hero.transform.position, hero.AttackRange) as Monster;
+    }
+
     public void NextSearchType()
     {
         searchType++;
-        if (searchType > SearchType.Grid)
+        if (searchType > SearchType.Octree)
         {
             searchType = SearchType.Normal;
         }
@@ -205,6 +234,11 @@ public class SearchCenter : MonoBehaviour
             {
                 kdTree.DrawGizmos();
             }
+        }
+
+        if (searchType == SearchType.Octree)
+        {
+            orthtree.DrawGizmos();
         }
     }
 

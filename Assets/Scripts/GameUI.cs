@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -8,11 +9,15 @@ public class GameUI : MonoBehaviour
     public TMP_InputField attackRangeInput;
     public TMP_InputField searchTimesInput;
     public TMP_InputField cellSizeInput;
-    public TMP_Text cosText;
+    public TMP_Text searchCostText;
+    public TMP_Text searchCostAvgText;
+    public TMP_Text buildCostText;
     public TMP_Text fpsText;
     public TMP_Text searchTypeText;
 
-    private long lastCost;
+    private long lastSearchCost;
+    private Queue<long> searchCost10 = new Queue<long>();
+    private long lastBuildCost;
     private float fpsTimer;
     private int fpsCounter;
     private int fps;
@@ -26,7 +31,7 @@ public class GameUI : MonoBehaviour
         searchTimesInput.text = SearchCenter.Instance.searchTimes.ToString();
         cellSizeInput.text = GridX.Instance.cellSize.ToString();
         searchTypeText.text = SearchCenter.Instance.searchType.ToString();
-        cosText.text = "0us";
+        searchCostText.text = "0us";
         fpsText.text = "0";
     }
 
@@ -43,10 +48,34 @@ public class GameUI : MonoBehaviour
             fpsText.text = fps.ToString();
         }
 
-        if (lastCost != SearchCenter.Instance.costTime)
+        if (SearchCenter.Instance.searchCostTimeChanged)
         {
-            lastCost = SearchCenter.Instance.costTime;
-            cosText.text = $"{lastCost:N0}";
+            SearchCenter.Instance.searchCostTimeChanged = false;
+            if (lastSearchCost != SearchCenter.Instance.searchCostTime)
+            {
+                lastSearchCost = SearchCenter.Instance.searchCostTime;
+                searchCostText.text = $"{lastSearchCost:N0}";
+            }
+
+            if (searchCost10.Count >= 10)
+            {
+                searchCost10.Dequeue();
+            }
+            searchCost10.Enqueue(lastSearchCost);
+            long total = 0;
+            foreach (long l in searchCost10)
+            {
+                total += l;
+            }
+
+            var n = searchCost10.Count > 0 ? total / searchCost10.Count : 0;
+            searchCostAvgText.text = $"{n:N0}";
+        }
+
+        if (lastBuildCost != SearchCenter.Instance.buildCostTime)
+        {
+            lastBuildCost = SearchCenter.Instance.buildCostTime;
+            buildCostText.text = $"{lastBuildCost:N0}";
         }
     }
 
